@@ -13,5 +13,6 @@ public enum CommandType {
     USER_PASS,
     RESULT,
     LOGIN_RESULT,
-    HELP_RESULT
+    HELP_RESULT,
+    CREATE_CHAT_RESULT
 }

@@ -55,7 +55,7 @@ public class ThreadedClient implements MessageListener {
             if (commandMessage != null) {
                 handler.send(commandMessage);
             } else {
-                System.out.println("Bad command");
+                System.out.println("Bad command.");
             }
         } else {
             System.out.println("Invalid input: " + line);

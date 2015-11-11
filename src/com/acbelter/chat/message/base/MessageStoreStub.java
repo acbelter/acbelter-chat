@@ -1,13 +1,11 @@
 package com.acbelter.chat.message.base;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class MessageStoreStub implements MessageStore {
-    public static final AtomicLong counter = new AtomicLong(0);
+    public static final AtomicLong messagesCounter = new AtomicLong(0);
+    public static final AtomicLong chatsCounter = new AtomicLong(0);
 
 //    List<ChatSendMessage> messages1 = Arrays.asList(
 //            new ChatSendMessage(1L, "msg1_1"),
@@ -33,14 +31,27 @@ public class MessageStoreStub implements MessageStore {
         Chat chat1 = new Chat();
         chat1.addParticipant(0L);
         chat1.addParticipant(2L);
+        chat1.setId(chatsCounter.incrementAndGet());
 
         Chat chat2 = new Chat();
         chat2.addParticipant(1L);
         chat2.addParticipant(2L);
         chat2.addParticipant(3L);
+        chat2.setId(chatsCounter.incrementAndGet());
 
-        chats.put(1L, chat1);
-        chats.put(2L, chat2);
+        chats.put(chat1.getId(), chat1);
+        chats.put(chat2.getId(), chat2);
+    }
+
+    @Override
+    public Chat createChat(Set<Long> userIdList) {
+        Chat newChat = new Chat();
+        for (Long userId : userIdList) {
+            newChat.addParticipant(userId);
+        }
+        newChat.setId(chatsCounter.incrementAndGet());
+        chats.put(newChat.getId(), newChat);
+        return newChat;
     }
 
     @Override
@@ -71,7 +82,7 @@ public class MessageStoreStub implements MessageStore {
 
     @Override
     public void addMessage(Long chatId, Message message) {
-        message.setId(counter.getAndIncrement());
+        message.setId(messagesCounter.getAndIncrement());
         chats.get(chatId).addMessage(message.getId());
         messages.put(message.getId(), message);
     }

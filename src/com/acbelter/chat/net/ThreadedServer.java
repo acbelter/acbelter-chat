@@ -74,7 +74,7 @@ public class ThreadedServer {
         MessageStore messageStore = new MessageStoreStub();
 
         Map<CommandType, Command> commands = new HashMap<>();
-        commands.put(CommandType.CHAT_CREATE, new ChatCreateCommand());
+        commands.put(CommandType.CHAT_CREATE, new ChatCreateCommand(messageStore));
         commands.put(CommandType.CHAT_FIND, new ChatFindCommand());
         commands.put(CommandType.CHAT_HISTORY, new ChatHistoryCommand());
         commands.put(CommandType.CHAT_LIST, new ChatListCommand());
