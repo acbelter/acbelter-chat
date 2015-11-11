@@ -31,7 +31,7 @@ public class ChatCreateCommand extends Command {
     @Override
     public Message execute(Session session, Message message) {
         if (session.getSessionUser() == null) {
-            return new CommandResultMessage(CommandResultState.NOT_LOGGED, "Yoy need to login.");
+            return new CommandResultMessage(CommandResultState.NOT_LOGGED, "You need to login.");
         }
 
         ChatCreateMessage chatCreateMessage = (ChatCreateMessage) message;

@@ -81,9 +81,9 @@ public class ThreadedServer {
         commands.put(CommandType.CHAT_SEND, new ChatSendCommand(sessionManager, messageStore));
         commands.put(CommandType.HELP, new HelpCommand(commands));
         commands.put(CommandType.LOGIN, new LoginCommand(userStore, sessionManager));
-        commands.put(CommandType.USER_INFO, new UserInfoCommand());
-        commands.put(CommandType.USER, new UserCommand());
-        commands.put(CommandType.USER_PASS, new UserPassCommand());
+        commands.put(CommandType.USER_INFO, new UserInfoCommand(userStore));
+        commands.put(CommandType.USER, new UserCommand(userStore));
+        commands.put(CommandType.USER_PASS, new UserPassCommand(userStore));
 
         CommandHandler handler = new CommandHandler(commands);
         ThreadedServer server = new ThreadedServer(protocol, sessionManager, handler);

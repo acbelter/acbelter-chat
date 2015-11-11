@@ -65,7 +65,6 @@ public class MessageBuilder {
                 return new ChatListMessage();
             }
             case "chat_send": {
-                // TODO При парсинге сообщения из нескольких слов будет неправильное количество аргументоа
                 if (args.length != 2) {
                     System.out.println("Invalid number of arguments.");
                     return null;

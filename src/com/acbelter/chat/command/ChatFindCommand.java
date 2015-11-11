@@ -43,7 +43,7 @@ public class ChatFindCommand extends Command {
     @Override
     public Message execute(Session session, Message message) {
         if (session.getSessionUser() == null) {
-            return new CommandResultMessage(CommandResultState.NOT_LOGGED, "Yoy need to login.");
+            return new CommandResultMessage(CommandResultState.NOT_LOGGED, "You need to login.");
         }
 
         ChatFindMessage chatFindMessage = (ChatFindMessage) message;
