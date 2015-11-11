@@ -3,14 +3,14 @@ package com.acbelter.chat.message.result;
 import com.acbelter.chat.command.base.CommandType;
 import com.acbelter.chat.message.base.Message;
 
-public class CreateChatResultMessage extends Message {
+public class ChatCreateResultMessage extends Message {
     private Long newChatId;
 
-    public CreateChatResultMessage() {
-        setType(CommandType.CREATE_CHAT_RESULT);
+    public ChatCreateResultMessage() {
+        setType(CommandType.CHAT_CREATE_RESULT);
     }
 
-    public CreateChatResultMessage(Long newChatId) {
+    public ChatCreateResultMessage(Long newChatId) {
         this();
         this.newChatId = newChatId;
     }
@@ -25,7 +25,7 @@ public class CreateChatResultMessage extends Message {
 
     @Override
     public String toString() {
-        return "CreateChatResultMessage{" +
+        return "ChatCreateResultMessage{" +
                 "newChatId=" + newChatId +
                 "} " + super.toString();
     }

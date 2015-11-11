@@ -1,5 +1,7 @@
 package com.acbelter.chat.message.base;
 
+import com.acbelter.chat.message.ChatSendMessage;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -7,23 +9,23 @@ public class MessageStoreStub implements MessageStore {
     public static final AtomicLong messagesCounter = new AtomicLong(0);
     public static final AtomicLong chatsCounter = new AtomicLong(0);
 
-//    List<ChatSendMessage> messages1 = Arrays.asList(
-//            new ChatSendMessage(1L, "msg1_1"),
-//            new ChatSendMessage(1L, "msg1_2"),
-//            new ChatSendMessage(1L, "msg1_3"),
-//            new ChatSendMessage(1L, "msg1_4"),
-//            new ChatSendMessage(1L, "msg1_5")
-//    );
-//
-//    List<ChatSendMessage> messages2 = Arrays.asList(
-//            new ChatSendMessage(2L, "msg2_1"),
-//            new ChatSendMessage(2L, "msg2_2"),
-//            new ChatSendMessage(2L, "msg2_3"),
-//            new ChatSendMessage(2L, "msg2_4"),
-//            new ChatSendMessage(2L, "msg2_5")
-//    );
+    static List<ChatSendMessage> messages1 = Arrays.asList(
+            new ChatSendMessage(1L, "msg1_1"),
+            new ChatSendMessage(1L, "msg1_2"),
+            new ChatSendMessage(1L, "msg1_3"),
+            new ChatSendMessage(1L, "msg1_4"),
+            new ChatSendMessage(1L, "msg1_5")
+    );
 
-    Map<Long, Message> messages = new HashMap<>();
+    static List<ChatSendMessage> messages2 = Arrays.asList(
+            new ChatSendMessage(2L, "msg2_1"),
+            new ChatSendMessage(2L, "msg2_2"),
+            new ChatSendMessage(2L, "msg2_3"),
+            new ChatSendMessage(2L, "msg2_4"),
+            new ChatSendMessage(2L, "msg2_5")
+    );
+
+    static Map<Long, ChatSendMessage> messages = new HashMap<>();
 
     static Map<Long, Chat> chats = new HashMap<>();
 
@@ -41,6 +43,18 @@ public class MessageStoreStub implements MessageStore {
 
         chats.put(chat1.getId(), chat1);
         chats.put(chat2.getId(), chat2);
+
+        for (ChatSendMessage chatMessage : messages1) {
+            chatMessage.setId(messagesCounter.getAndIncrement());
+            chats.get(chatMessage.getChatId()).addMessage(chatMessage.getId());
+            messages.put(chatMessage.getId(), chatMessage);
+        }
+
+        for (ChatSendMessage chatMessage : messages2) {
+            chatMessage.setId(messagesCounter.getAndIncrement());
+            chats.get(chatMessage.getChatId()).addMessage(chatMessage.getId());
+            messages.put(chatMessage.getId(), chatMessage);
+        }
     }
 
     @Override
@@ -76,12 +90,12 @@ public class MessageStoreStub implements MessageStore {
     }
 
     @Override
-    public Message getMessageById(Long messageId) {
+    public ChatSendMessage getMessageById(Long messageId) {
         return messages.get(messageId);
     }
 
     @Override
-    public void addMessage(Long chatId, Message message) {
+    public void addMessage(Long chatId, ChatSendMessage message) {
         message.setId(messagesCounter.getAndIncrement());
         chats.get(chatId).addMessage(message.getId());
         messages.put(message.getId(), message);

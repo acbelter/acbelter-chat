@@ -6,8 +6,8 @@ import com.acbelter.chat.message.ChatCreateMessage;
 import com.acbelter.chat.message.base.Chat;
 import com.acbelter.chat.message.base.Message;
 import com.acbelter.chat.message.base.MessageStore;
+import com.acbelter.chat.message.result.ChatCreateResultMessage;
 import com.acbelter.chat.message.result.CommandResultMessage;
-import com.acbelter.chat.message.result.CreateChatResultMessage;
 import com.acbelter.chat.session.Session;
 
 import java.util.HashSet;
@@ -40,6 +40,6 @@ public class ChatCreateCommand extends Command {
             userIds.add(session.getSessionUser().getId());
         }
         Chat newChat = messageStore.createChat(userIds);
-        return new CreateChatResultMessage(newChat.getId());
+        return new ChatCreateResultMessage(newChat.getId());
     }
 }
