@@ -10,6 +10,7 @@ import com.acbelter.chat.message.result.LoginResultMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 public class StringProtocol implements Protocol {
     static Logger log = LoggerFactory.getLogger(StringProtocol.class);
 
@@ -115,7 +116,7 @@ public class StringProtocol implements Protocol {
                 userPassMessage.setNewPassword(tokens[4]);
                 return userPassMessage;
             }
-            case RESULT: {
+            case COMMAND_RESULT: {
                 CommandResultMessage resultMessage = new CommandResultMessage();
                 resultMessage.setId(id);
                 resultMessage.setSender(senderId);
@@ -135,7 +136,7 @@ public class StringProtocol implements Protocol {
                 HelpResultMessage helpResultMessage = new HelpResultMessage();
                 helpResultMessage.setId(id);
                 helpResultMessage.setSender(senderId);
-                helpResultMessage.setContent(tokens[3]);
+                // FIXME Set help content
             }
             default: {
                 throw new ProtocolException("Invalid type: " + type);
@@ -205,7 +206,7 @@ public class StringProtocol implements Protocol {
                 builder.append(userPassMessage.getNewPassword()).append(DELIMITER);
                 break;
             }
-            case RESULT: {
+            case COMMAND_RESULT: {
                 CommandResultMessage commandResultMessage = (CommandResultMessage) msg;
                 builder.append(commandResultMessage.getState()).append(DELIMITER);
                 builder.append(commandResultMessage.getData()).append(DELIMITER);
@@ -219,7 +220,7 @@ public class StringProtocol implements Protocol {
             }
             case HELP_RESULT: {
                 HelpResultMessage helpResultMessage = (HelpResultMessage) msg;
-                builder.append(helpResultMessage.getContent()).append(DELIMITER);
+                // FIXME Get help content
                 break;
             }
             default: {

@@ -8,6 +8,7 @@ import com.acbelter.chat.message.base.Message;
  */
 public class ChatSendMessage extends Message {
     private Long chatId;
+    private String senderNick;
     private String message;
 
     public ChatSendMessage() {
@@ -36,10 +37,19 @@ public class ChatSendMessage extends Message {
         this.message = message;
     }
 
+    public String getSenderNick() {
+        return senderNick;
+    }
+
+    public void setSenderNick(String senderNick) {
+        this.senderNick = senderNick;
+    }
+
     @Override
     public String toString() {
         return "ChatSendMessage{" +
                 "chatId=" + chatId +
+                ", senderNick='" + senderNick + '\'' +
                 ", message='" + message + '\'' +
                 "} " + super.toString();
     }

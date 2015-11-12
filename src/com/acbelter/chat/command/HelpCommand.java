@@ -7,6 +7,8 @@ import com.acbelter.chat.message.result.HelpResultMessage;
 import com.acbelter.chat.session.Session;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -28,11 +30,11 @@ public class HelpCommand extends Command {
     @Override
     public Message execute(Session session, Message msg) {
         HelpResultMessage helpResultMessage = new HelpResultMessage();
-        StringBuilder builder = new StringBuilder();
+        List<String> helpContent = new ArrayList<>(commands.size());
         for (Command cmd : commands.values()) {
-            builder.append(cmd.getName()).append("\t").append(cmd.getDescription()).append("\n");
+            helpContent.add(cmd.getName() + "\t" + cmd.getDescription());
         }
-        helpResultMessage.setContent(builder.toString());
+        helpResultMessage.setHelpContent(helpContent);
         try {
             session.getConnectionHandler().send(helpResultMessage);
         } catch (IOException e) {

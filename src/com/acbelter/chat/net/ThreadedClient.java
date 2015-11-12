@@ -1,14 +1,17 @@
 package com.acbelter.chat.net;
 
 import com.acbelter.chat.command.base.CommandParser;
+import com.acbelter.chat.message.ChatSendMessage;
 import com.acbelter.chat.message.base.Message;
 import com.acbelter.chat.message.base.User;
-import com.acbelter.chat.message.result.HelpResultMessage;
-import com.acbelter.chat.message.result.LoginResultMessage;
+import com.acbelter.chat.message.result.*;
 import com.acbelter.chat.session.Session;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class ThreadedClient implements MessageListener {
@@ -58,8 +61,34 @@ public class ThreadedClient implements MessageListener {
 
     @Override
     public void onMessage(Session session, Message msg) {
-        System.out.println("SESSION " + session.getSessionUser() + " MESSAGE " + msg);
         switch (msg.getType()) {
+            case CHAT_CREATE_RESULT: {
+                ChatCreateResultMessage chatCreateResultMessage = (ChatCreateResultMessage) msg;
+                System.out.println("New chat id: " + chatCreateResultMessage.getNewChatId());
+                break;
+            }
+            case CHAT_FIND_RESULT: {
+                ChatFindResultMessage chatFindResultMessage = (ChatFindResultMessage) msg;
+                chatFindResultMessage.getMessages().forEach(System.out::println);
+                break;
+            }
+            case CHAT_HISTORY_RESULT: {
+                ChatHistoryResultMessage chatHistoryResultMessage = (ChatHistoryResultMessage) msg;
+                chatHistoryResultMessage.getMessages().forEach(System.out::println);
+                break;
+            }
+            case CHAT_LIST_RESULT: {
+                ChatListResultMessage chatListResultMessage = (ChatListResultMessage) msg;
+                for (Map.Entry<Long, List<Long>> chatData : chatListResultMessage.getChatData().entrySet()) {
+                    System.out.println(chatData.getKey() + ":" + Arrays.toString(chatData.getValue().toArray()));
+                }
+                break;
+            }
+            case HELP_RESULT: {
+                HelpResultMessage helpResultMessage = (HelpResultMessage) msg;
+                helpResultMessage.getHelpContent().forEach(System.out::println);
+                break;
+            }
             case LOGIN_RESULT: {
                 LoginResultMessage loginResultMessage = (LoginResultMessage) msg;
                 User user = new User(loginResultMessage.getLogin());
@@ -68,9 +97,23 @@ public class ThreadedClient implements MessageListener {
                 System.out.println("Success login. User id: " + user.getId());
                 break;
             }
-            case HELP_RESULT: {
-                HelpResultMessage helpResultMessage = (HelpResultMessage) msg;
-                System.out.println(helpResultMessage.getContent());
+            case USER_INFO_RESULT: {
+                UserInfoResultMessage userInfoResultMessage = (UserInfoResultMessage) msg;
+                User user = userInfoResultMessage.getUser();
+                System.out.println("User id: " + user.getId());
+                System.out.println("User login: " + user.getLogin());
+                System.out.println("User nick: " + user.getNick());
+                break;
+            }
+            case CHAT_SEND: {
+                ChatSendMessage chatSendMessage = (ChatSendMessage) msg;
+                System.out.println(chatSendMessage.getSenderNick() + " (chat_id=" + chatSendMessage.getChatId() +
+                        "): " + chatSendMessage.getMessage());
+                break;
+            }
+            case COMMAND_RESULT: {
+                CommandResultMessage commandResultMessage = (CommandResultMessage) msg;
+                System.out.println(commandResultMessage.getData());
                 break;
             }
         }

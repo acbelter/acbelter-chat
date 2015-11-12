@@ -11,7 +11,7 @@ public enum CommandType {
     USER,
     USER_INFO,
     USER_PASS,
-    RESULT,
+    COMMAND_RESULT,
     LOGIN_RESULT,
     HELP_RESULT,
     CHAT_CREATE_RESULT,

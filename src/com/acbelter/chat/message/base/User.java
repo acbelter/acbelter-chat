@@ -1,6 +1,8 @@
 package com.acbelter.chat.message.base;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
     protected Long id;
     protected String login;
     protected String passwordHash;

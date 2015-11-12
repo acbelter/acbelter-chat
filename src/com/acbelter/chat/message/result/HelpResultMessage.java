@@ -3,25 +3,32 @@ package com.acbelter.chat.message.result;
 import com.acbelter.chat.command.base.CommandType;
 import com.acbelter.chat.message.base.Message;
 
+import java.util.List;
+
 public class HelpResultMessage extends Message {
-    private String content;
+    private List<String> helpContent;
 
     public HelpResultMessage() {
         setType(CommandType.HELP_RESULT);
     }
 
-    public String getContent() {
-        return content;
+    public HelpResultMessage(List<String> helpContent) {
+        this();
+        this.helpContent = helpContent;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public List<String> getHelpContent() {
+        return helpContent;
+    }
+
+    public void setHelpContent(List<String> helpContent) {
+        this.helpContent = helpContent;
     }
 
     @Override
     public String toString() {
         return "HelpResultMessage{" +
-                "content='" + content + '\'' +
+                "helpContent=" + helpContent +
                 "} " + super.toString();
     }
 }

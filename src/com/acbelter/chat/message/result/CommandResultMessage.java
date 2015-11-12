@@ -9,7 +9,7 @@ public class CommandResultMessage extends Message {
     private String data;
 
     public CommandResultMessage() {
-        setType(CommandType.RESULT);
+        setType(CommandType.COMMAND_RESULT);
     }
 
     public CommandResultMessage(CommandResultState state, String data) {
