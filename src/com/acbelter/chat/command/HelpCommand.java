@@ -23,15 +23,14 @@ public class HelpCommand extends Command {
 
     public HelpCommand(Map<CommandType, Command> commands) {
         this();
-        this.commands = new TreeMap<>();
-        this.commands.putAll(commands);
+        this.commands = commands;
     }
 
     @Override
     public Message execute(Session session, Message msg) {
         HelpResultMessage helpResultMessage = new HelpResultMessage();
         List<String> helpContent = new ArrayList<>(commands.size());
-        for (Command cmd : commands.values()) {
+        for (Command cmd : new TreeMap<>(commands).values()) {
             helpContent.add(cmd.getName() + "\t" + cmd.getDescription());
         }
         helpResultMessage.setHelpContent(helpContent);
