@@ -8,6 +8,7 @@ import java.util.Map;
 public class UserStoreStub implements UserStore {
     private static Map<Long, User> users = new HashMap<>();
 
+
     static {
         User u0 = new User("user0", HashUtil.generateHash("0"));
         u0.setId(0L);
