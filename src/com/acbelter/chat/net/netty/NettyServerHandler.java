@@ -1,47 +1,30 @@
 package com.acbelter.chat.net.netty;
 
+import com.acbelter.chat.command.base.CommandHandler;
 import com.acbelter.chat.message.base.Message;
+import com.acbelter.chat.net.ChannelConnectionHandler;
+import com.acbelter.chat.net.ConnectionHandler;
+import com.acbelter.chat.net.Protocol;
+import com.acbelter.chat.net.SessionManager;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.HashMap;
+import java.util.Map;
 
 public class NettyServerHandler extends SimpleChannelUpstreamHandler {
     static Logger log = LoggerFactory.getLogger(NettyServerHandler.class);
 
-    private Channel channel;
-    private BlockingQueue<Message> inQueue = new LinkedBlockingQueue<>();
-    private BlockingQueue<Message> outQueue = new LinkedBlockingQueue<>();
+    private Map<Integer, ConnectionHandler> handlers = new HashMap<>();
+    private Protocol protocol;
+    private SessionManager sessionManager;
+    private CommandHandler commandHandler;
 
-    public NettyServerHandler() {
-        Thread receiveThread = new Thread(() -> {
-            Message msg;
-            while (true) {
-                try {
-                    msg = inQueue.take();
-                    outQueue.offer(msg);
-                } catch (InterruptedException e) {
-                    log.error("Receive thread was interrupted");
-                }
-            }
-        });
-
-        Thread sendThread = new Thread(() -> {
-            Message msg;
-            while (true) {
-                try {
-                    msg = outQueue.take();
-                    channel.write(msg);
-                } catch (InterruptedException e) {
-                    log.error("Send thread was interrupted");
-                }
-            }
-        });
-
-        receiveThread.start();
-        sendThread.start();
+    public NettyServerHandler(Protocol protocol, SessionManager sessionManager, CommandHandler commandHandler) {
+        this.protocol = protocol;
+        this.sessionManager = sessionManager;
+        this.commandHandler = commandHandler;
     }
 
     @Override
@@ -54,20 +37,35 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler {
 
     @Override
     public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        log.info("CHANNEL OPEN " + e.getChannel().getId());
-        channel = e.getChannel();
+        log.info("Server open channel " + e.getChannel().getId());
+
+        Channel channel = e.getChannel();
+        ConnectionHandler handler = new ChannelConnectionHandler(protocol, sessionManager.createSession(), channel);
+        handler.addListener(commandHandler);
+
+        handlers.put(channel.getId(), handler);
+
+        Thread thread = new Thread(handler);
+        thread.start();
+
         super.channelOpen(ctx, e);
     }
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
         log.info("Server receive message: " + e.getMessage().getClass());
-        inQueue.offer((Message) e.getMessage());
+        handlers.get(e.getChannel().getId()).receive((Message) e.getMessage());
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
         log.error("Unexpected exception from downstream: " + e.toString());
         e.getChannel().close();
+    }
+
+    public void stopServer() {
+        for (ConnectionHandler handler : handlers.values()) {
+            handler.stop();
+        }
     }
 }

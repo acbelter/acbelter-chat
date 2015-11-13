@@ -2,38 +2,31 @@ package com.acbelter.chat.net;
 
 import com.acbelter.chat.message.base.Message;
 import com.acbelter.chat.session.Session;
+import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
-/**
- * Класс работающий с сокетом, умеет отправлять данные в сокет
- * Также слушает сокет и рассылает событие о сообщении всем подписчикам (асинхронность)
- */
-public class SocketConnectionHandler implements ConnectionHandler {
-    static Logger log = LoggerFactory.getLogger(SocketConnectionHandler.class);
+public class ChannelConnectionHandler implements ConnectionHandler {
+    static Logger log = LoggerFactory.getLogger(ChannelConnectionHandler.class);
 
+    private BlockingQueue<Message> inQueue = new LinkedBlockingQueue<>();
     private List<MessageListener> listeners = new ArrayList<>();
-    private Socket socket;
-    private InputStream in;
-    private OutputStream out;
+    private Channel channel;
     private Protocol protocol;
     private Session session;
 
-    public SocketConnectionHandler(Protocol protocol, Session session, Socket socket) throws IOException {
+    // TODO Use protocol
+    public ChannelConnectionHandler(Protocol protocol, Session session, Channel channel) {
         this.protocol = protocol;
-        this.socket = socket;
         this.session = session;
+        this.channel = channel;
         session.setConnectionHandler(this);
-        in = socket.getInputStream();
-        out = socket.getOutputStream();
     }
 
     @Override
@@ -46,17 +39,12 @@ public class SocketConnectionHandler implements ConnectionHandler {
             msg.setSender(session.getSessionUser().getId());
         }
 
-        try {
-            out.write(protocol.encode(msg));
-            out.flush();
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-        }
+        channel.write(msg);
     }
 
     @Override
     public void receive(Message msg) {
-        throw new UnsupportedOperationException();
+        inQueue.offer(msg);
     }
 
     @Override
@@ -70,22 +58,20 @@ public class SocketConnectionHandler implements ConnectionHandler {
 
     @Override
     public void run() {
-        final byte[] buf = new byte[1024 * 64];
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                int read = in.read(buf);
-                if (read > 0) {
-                    Message msg = protocol.decode(Arrays.copyOf(buf, read));
-                    msg.setSender(session.getId());
-                    log.info("message received: {}", msg);
-                    notifyListeners(session, msg);
-                }
+                Message msg = inQueue.take();
+                //Message msg = protocol.decode(Arrays.copyOf(buf, read));
+                msg.setSender(session.getId());
+                log.info("message received: {}", msg);
+                notifyListeners(session, msg);
             } catch (Exception e) {
                 log.error("Failed to handle connection: {}", e);
                 e.printStackTrace();
                 Thread.currentThread().interrupt();
             }
         }
+        channel.close();
     }
 
     @Override
@@ -93,5 +79,3 @@ public class SocketConnectionHandler implements ConnectionHandler {
         Thread.currentThread().interrupt();
     }
 }
-
-

@@ -1,6 +1,7 @@
 package com.acbelter.chat.net.netty;
 
 import com.acbelter.chat.message.base.Message;
+import com.acbelter.chat.net.ConnectionHandler;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,11 +9,14 @@ import org.slf4j.LoggerFactory;
 public class NettyClientHandler extends SimpleChannelUpstreamHandler {
     static Logger log = LoggerFactory.getLogger(NettyClientHandler.class);
 
-    private volatile Channel channel;
+    private ConnectionHandler handler;
 
-    public void send(Message message) {
-        channel.write(message);
-        log.info(String.format("Message %d was sent", message.getId()));
+    public ConnectionHandler getConnectionHandler() {
+        return handler;
+    }
+
+    public void setConnectionHandler(ConnectionHandler handler) {
+        this.handler = handler;
     }
 
     @Override
@@ -25,13 +29,14 @@ public class NettyClientHandler extends SimpleChannelUpstreamHandler {
 
     @Override
     public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        channel = e.getChannel();
+        log.info("Client open channel " + e.getChannel().getId());
         super.channelOpen(ctx, e);
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, final MessageEvent e) {
+    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
         log.info("Message received: " + e.getMessage().getClass().getName());
+        handler.receive((Message) e.getMessage());
     }
 
     @Override

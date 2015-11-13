@@ -1,44 +1,66 @@
-package com.acbelter.chat.net;
+package com.acbelter.chat.net.netty;
 
 import com.acbelter.chat.command.base.CommandParser;
 import com.acbelter.chat.message.ChatSendMessage;
 import com.acbelter.chat.message.base.Message;
 import com.acbelter.chat.message.base.User;
 import com.acbelter.chat.message.result.*;
+import com.acbelter.chat.net.*;
 import com.acbelter.chat.session.Session;
+import org.jboss.netty.bootstrap.ClientBootstrap;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
 import java.io.IOException;
-import java.net.Socket;
+import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.Executors;
 
-public class ThreadedClient implements MessageListener {
+public class NettyClient implements MessageListener {
     public static final int PORT = 19000;
     public static final String HOST = "localhost";
+
+    private ClientBootstrap bootstrap;
+    private Channel channel;
 
     private ConnectionHandler handler;
     private Protocol protocol = new SerializationProtocol();
 
-    public ThreadedClient() {
-        init();
+    public NettyClient() {
+        bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
+                Executors.newCachedThreadPool(),
+                Executors.newCachedThreadPool()));
+
+        bootstrap.setPipelineFactory(new MessagePipelineFactory(new NettyClientHandler()));
+
+        ChannelFuture channelFuture = bootstrap.connect(new InetSocketAddress(HOST, PORT));
+        channel = channelFuture.awaitUninterruptibly().getChannel();
+
+        Session session = new Session();
+        handler = new ChannelConnectionHandler(protocol, session, channel);
+        handler.addListener(this);
+
+        NettyClientHandler clientHandler = channel.getPipeline().get(NettyClientHandler.class);
+        clientHandler.setConnectionHandler(handler);
+
+        Thread thread = new Thread(handler);
+        thread.start();
+
     }
 
-    private void init() {
-        try {
-            Socket socket = new Socket(HOST, PORT);
-            Session session = new Session();
-            handler = new SocketConnectionHandler(protocol, session, socket);
+    public void stop() {
+        // Close the connection.
+        if (channel != null) {
+            channel.close().awaitUninterruptibly();
+        }
 
-            // Этот класс будет получать уведомления от socket handler
-            handler.addListener(this);
-
-            Thread socketHandler = new Thread(handler);
-            socketHandler.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(0);
+        // Shut down all thread pools to exit.
+        if (bootstrap != null) {
+            bootstrap.releaseExternalResources();
         }
     }
 
@@ -119,13 +141,14 @@ public class ThreadedClient implements MessageListener {
     }
 
     public static void main(String[] args) throws Exception {
-        ThreadedClient client = new ThreadedClient();
+        NettyClient client = new NettyClient();
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("$");
         while (true) {
             String input = scanner.nextLine();
             if ("q".equals(input)) {
+                client.stop();
                 return;
             }
             client.processInput(input);

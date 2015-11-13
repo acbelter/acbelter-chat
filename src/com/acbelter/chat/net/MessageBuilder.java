@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MessageBuilder {
-    static Logger log = LoggerFactory.getLogger(ThreadedClient.class);
+    static Logger log = LoggerFactory.getLogger(MessageBuilder.class);
 
     public static Message buildMessage(String name, String[] args) {
         log.info("Command: " + name + " args: " + Arrays.toString(args));

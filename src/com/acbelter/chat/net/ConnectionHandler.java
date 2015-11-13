@@ -9,6 +9,7 @@ import java.io.IOException;
  */
 public interface ConnectionHandler extends Runnable {
     void send(Message msg) throws IOException;
+    void receive(Message msg);
     void addListener(MessageListener listener);
     void stop();
 }
