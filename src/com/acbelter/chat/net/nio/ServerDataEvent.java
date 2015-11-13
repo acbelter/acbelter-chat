@@ -1,8 +1,5 @@
 package com.acbelter.chat.net.nio;
 
-/**
- *
- */
 import java.nio.channels.SocketChannel;
 
 class ServerDataEvent {

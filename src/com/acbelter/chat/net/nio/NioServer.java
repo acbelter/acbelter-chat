@@ -17,11 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-/**
- *
- */
 public class NioServer implements Runnable {
-
     // The host:port combination to listen on
     private InetAddress hostAddress;
     private int port;
@@ -38,17 +34,17 @@ public class NioServer implements Runnable {
     private EchoWorker worker;
 
     // A list of ChangeRequest instances
-    private List changeRequests = new LinkedList();
+    private final List<ChangeRequest> changeRequests = new LinkedList<>();
 
     // Maps a SocketChannel to a list of ByteBuffer instances
-    private Map pendingData = new HashMap();
-
+    private final Map<SocketChannel, List<ByteBuffer>> pendingData = new HashMap<>();
 
 
     public NioServer(InetAddress hostAddress, int port) throws IOException {
         this.hostAddress = hostAddress;
         this.port = port;
         selector = initSelector();
+
         Thread t = new Thread(worker);
         t.start();
     }
@@ -133,9 +129,9 @@ public class NioServer implements Runnable {
 
             // And queue the data we want written
             synchronized (pendingData) {
-                List queue = (List) pendingData.get(socket);
+                List<ByteBuffer> queue = pendingData.get(socket);
                 if (queue == null) {
-                    queue = new ArrayList();
+                    queue = new ArrayList<>();
                     pendingData.put(socket, queue);
                 }
                 queue.add(ByteBuffer.wrap(data));
@@ -194,11 +190,11 @@ public class NioServer implements Runnable {
         SocketChannel socketChannel = (SocketChannel) key.channel();
 
         synchronized (pendingData) {
-            List queue = (List) pendingData.get(socketChannel);
+            List<ByteBuffer> queue = pendingData.get(socketChannel);
 
             // Write until there's not more data ...
             while (!queue.isEmpty()) {
-                ByteBuffer buf = (ByteBuffer) queue.get(0);
+                ByteBuffer buf = queue.get(0);
                 socketChannel.write(buf);
                 if (buf.remaining() > 0) {
                     // ... or the socket's buffer fills up

@@ -4,9 +4,6 @@ import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- *
- */
 public class EchoWorker implements Runnable {
     private List queue = new LinkedList();
 
