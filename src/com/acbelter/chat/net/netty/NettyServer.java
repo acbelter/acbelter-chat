@@ -9,7 +9,7 @@ import com.acbelter.chat.jdbc.UserDatabaseStore;
 import com.acbelter.chat.message.base.MessageStore;
 import com.acbelter.chat.message.base.UserStore;
 import com.acbelter.chat.net.Protocol;
-import com.acbelter.chat.net.SerializationProtocol;
+import com.acbelter.chat.net.ProtocolStub;
 import com.acbelter.chat.net.SessionManager;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
@@ -40,7 +40,7 @@ public class NettyServer {
     }
 
     public static void main(String[] args) throws Exception {
-        Protocol protocol = new SerializationProtocol();
+        Protocol protocol = new ProtocolStub();
         SessionManager sessionManager = new SessionManager();
 
         UserStore userStore = new UserDatabaseStore();

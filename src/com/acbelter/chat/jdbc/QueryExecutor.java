@@ -38,14 +38,14 @@ public class QueryExecutor {
     }
 
     // Простой update-запрос
-    public List<Integer> execUpdate(String query) throws SQLException {
+    public List<Long> execUpdate(String query) throws SQLException {
         Statement stmt = connection.createStatement();
         stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
 
         ResultSet rs = stmt.getGeneratedKeys();
-        List<Integer> data = new ArrayList<>();
+        List<Long> data = new ArrayList<>();
         while (rs.next()) {
-            data.add(rs.getInt(1));
+            data.add(rs.getLong(1));
         }
 
         rs.close();
@@ -54,7 +54,7 @@ public class QueryExecutor {
     }
 
     // Подготовленный update-запрос
-    public List<Integer> execUpdate(String query, Map<Integer, Object> preparedArgs) throws SQLException {
+    public List<Long> execUpdate(String query, Map<Integer, Object> preparedArgs) throws SQLException {
         PreparedStatement stmt = connection.prepareStatement(query);
         for (Map.Entry<Integer, Object> entry : preparedArgs.entrySet()) {
             stmt.setObject(entry.getKey(), entry.getValue());
@@ -62,9 +62,9 @@ public class QueryExecutor {
         stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
 
         ResultSet rs = stmt.getGeneratedKeys();
-        List<Integer> data = new ArrayList<>();
+        List<Long> data = new ArrayList<>();
         while (rs.next()) {
-            data.add(rs.getInt(1));
+            data.add(rs.getLong(1));
         }
 
         rs.close();

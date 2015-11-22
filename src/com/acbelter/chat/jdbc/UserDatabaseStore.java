@@ -2,6 +2,7 @@ package com.acbelter.chat.jdbc;
 
 import com.acbelter.chat.message.base.User;
 import com.acbelter.chat.message.base.UserStore;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,11 +33,15 @@ public class UserDatabaseStore implements UserStore {
         }
 
         try {
-            String updateQuery = "INSERT INTO user_table (login, password_hash) values ('" +
-                    user.getLogin() + "', '" + user.getPasswordHash() + "');";
-            List<Integer> ids = queryExecutor.execUpdate(updateQuery);
+            StringBuilder sb = new StringBuilder();
+            sb.append("INSERT INTO user_table (login, password_hash) values ('")
+                    .append(StringEscapeUtils.escapeSql(user.getLogin()))
+                    .append("', '")
+                    .append(StringEscapeUtils.escapeSql(user.getPasswordHash()))
+                    .append("');");
+            List<Long> ids = queryExecutor.execUpdate(sb.toString());
             if (ids.size() == 1) {
-                user.setId(ids.get(0).longValue());
+                user.setId(ids.get(0));
                 log.info("Add user to db " + user);
             }
             return user;
@@ -53,7 +58,7 @@ public class UserDatabaseStore implements UserStore {
         }
 
         Map<Integer, Object> prepared = new HashMap<>();
-        prepared.put(1, login);
+        prepared.put(1, StringEscapeUtils.escapeSql(login));
 
         try {
             User user = queryExecutor.execQuery("SELECT * FROM user_table WHERE login = ? LIMIT 1;", prepared, (r) -> {
@@ -105,9 +110,13 @@ public class UserDatabaseStore implements UserStore {
         }
 
         try {
-            String updateQuery = "UPDATE user_table SET login = '" + user.getLogin() +
-                    "', password_hash = '" + user.getPasswordHash()+ "' WHERE id = " + user.getId() + ";";
-            List<Integer> ids = queryExecutor.execUpdate(updateQuery);
+            StringBuilder sb = new StringBuilder();
+            sb.append("UPDATE user_table SET login = '")
+                    .append(StringEscapeUtils.escapeSql(user.getLogin()))
+                    .append("', password_hash = '")
+                    .append(StringEscapeUtils.escapeSql(user.getPasswordHash()))
+                    .append("' WHERE id = ").append(user.getId()).append(";");
+            List<Long> ids = queryExecutor.execUpdate(sb.toString());
             if (!ids.isEmpty()) {
                 log.info("Update user " + user);
                 return true;

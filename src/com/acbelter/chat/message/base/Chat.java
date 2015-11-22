@@ -1,6 +1,7 @@
 package com.acbelter.chat.message.base;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class Chat {
@@ -37,6 +38,10 @@ public class Chat {
 
     public void addParticipant(Long id) {
         participantIds.add(id);
+    }
+
+    public void addParticipants(Collection<Long> ids) {
+        participantIds.addAll(ids);
     }
 
     public boolean hasParticipant(Long id) {

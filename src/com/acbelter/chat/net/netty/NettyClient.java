@@ -28,7 +28,7 @@ public class NettyClient implements MessageListener {
     private Channel channel;
 
     private ConnectionHandler handler;
-    private Protocol protocol = new SerializationProtocol();
+    private Protocol protocol = new ProtocolStub();
 
     public NettyClient() {
         bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(

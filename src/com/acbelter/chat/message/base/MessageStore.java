@@ -11,6 +11,6 @@ public interface MessageStore {
     Chat getChatById(Long chatId);
     List<Long> getMessagesFromChat(Long chatId);
     ChatSendMessage getMessageById(Long messageId);
-    void addMessage(Long chatId, ChatSendMessage message);
-    void addUserToChat(Long userId, Long chatId);
+    boolean addMessage(Long chatId, ChatSendMessage message);
+    boolean addUserToChat(Long userId, Long chatId);
 }
