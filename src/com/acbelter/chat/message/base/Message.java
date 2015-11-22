@@ -39,7 +39,9 @@ public abstract class Message implements Serializable {
 
     @Override
     public String toString() {
-        return "(sender=" + sender +
+        return "(" +
+                "id=" + id +
+                ", sender=" + sender +
                 ", type=" + type +
                 ')';
     }

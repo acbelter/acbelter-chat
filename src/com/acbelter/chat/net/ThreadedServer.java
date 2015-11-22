@@ -4,10 +4,10 @@ import com.acbelter.chat.command.*;
 import com.acbelter.chat.command.base.Command;
 import com.acbelter.chat.command.base.CommandHandler;
 import com.acbelter.chat.command.base.CommandType;
+import com.acbelter.chat.jdbc.MessageDatabaseStore;
+import com.acbelter.chat.jdbc.UserDatabaseStore;
 import com.acbelter.chat.message.base.MessageStore;
-import com.acbelter.chat.message.base.MessageStoreStub;
 import com.acbelter.chat.message.base.UserStore;
-import com.acbelter.chat.message.base.UserStoreStub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+@Deprecated
 public class ThreadedServer {
     public static final int PORT = 19000;
     static Logger log = LoggerFactory.getLogger(ThreadedServer.class);
@@ -70,8 +71,8 @@ public class ThreadedServer {
         Protocol protocol = new SerializationProtocol();
         SessionManager sessionManager = new SessionManager();
 
-        UserStore userStore = new UserStoreStub();
-        MessageStore messageStore = new MessageStoreStub();
+        UserStore userStore = new UserDatabaseStore();
+        MessageStore messageStore = new MessageDatabaseStore();
 
         Map<CommandType, Command> commands = new HashMap<>();
         commands.put(CommandType.CHAT_CREATE, new ChatCreateCommand(messageStore));

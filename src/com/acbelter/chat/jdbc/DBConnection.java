@@ -1,5 +1,8 @@
 package com.acbelter.chat.jdbc;
 
+import com.acbelter.chat.message.base.User;
+import org.postgresql.ds.PGPoolingDataSource;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -8,10 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.postgresql.ds.PGPoolingDataSource;
-
-import com.acbelter.chat.message.base.User;
-
+@Deprecated
 public class DBConnection {
     public static void main(String[] args) throws Exception {
 
@@ -55,8 +55,8 @@ public class DBConnection {
         /**
          * Использование executor для запроса в базу
          */
-        QueryExecutor exec = new QueryExecutor();
-        List<User> users = exec.execQuery(c, "SELECT * FROM users;", (r) -> {
+        QueryExecutor exec = new QueryExecutor(c);
+        List<User> users = exec.execQuery("SELECT * FROM users;", (r) -> {
             System.out.println("handle:");
             List<User> data = new ArrayList<>();
             while (r.next()) {
@@ -75,7 +75,7 @@ public class DBConnection {
         Map<Integer, Object> prepared = new HashMap<>();
         prepared.put(1, "John");
 
-        users = exec.execQuery(c, "SELECT * FROM users WHERE name = ?;", prepared, (r) -> {
+        users = exec.execQuery("SELECT * FROM users WHERE name = ?;", prepared, (r) -> {
             System.out.println("handle:");
             List<User> data = new ArrayList<>();
             while (r.next()) {

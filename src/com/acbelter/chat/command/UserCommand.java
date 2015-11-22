@@ -32,7 +32,6 @@ public class UserCommand extends Command {
         UserMessage userMessage = (UserMessage) message;
         User user = userStore.getUserById(userMessage.getSender());
         user.setNick(userMessage.getNick());
-        userStore.updateUser(user);
         session.setSessionUser(user);
         return new CommandResultMessage(CommandResultState.OK, "Now you nick is: " + userMessage.getNick());
     }

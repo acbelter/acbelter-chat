@@ -2,6 +2,7 @@ package com.acbelter.chat.jdbc;
 
 import java.sql.*;
 
+@Deprecated
 public class JDBCExample {
     public static void main(String[] argv) throws SQLException, ClassNotFoundException {
 

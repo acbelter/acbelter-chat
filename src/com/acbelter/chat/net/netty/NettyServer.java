@@ -4,10 +4,10 @@ import com.acbelter.chat.command.*;
 import com.acbelter.chat.command.base.Command;
 import com.acbelter.chat.command.base.CommandHandler;
 import com.acbelter.chat.command.base.CommandType;
+import com.acbelter.chat.jdbc.MessageDatabaseStore;
+import com.acbelter.chat.jdbc.UserDatabaseStore;
 import com.acbelter.chat.message.base.MessageStore;
-import com.acbelter.chat.message.base.MessageStoreStub;
 import com.acbelter.chat.message.base.UserStore;
-import com.acbelter.chat.message.base.UserStoreStub;
 import com.acbelter.chat.net.Protocol;
 import com.acbelter.chat.net.SerializationProtocol;
 import com.acbelter.chat.net.SessionManager;
@@ -43,8 +43,8 @@ public class NettyServer {
         Protocol protocol = new SerializationProtocol();
         SessionManager sessionManager = new SessionManager();
 
-        UserStore userStore = new UserStoreStub();
-        MessageStore messageStore = new MessageStoreStub();
+        UserStore userStore = new UserDatabaseStore();
+        MessageStore messageStore = new MessageDatabaseStore();
 
         Map<CommandType, Command> commands = new HashMap<>();
         commands.put(CommandType.CHAT_CREATE, new ChatCreateCommand(messageStore));

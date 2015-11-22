@@ -5,5 +5,4 @@ public interface UserStore {
     User getUser(String login);
     User getUserById(Long id);
     boolean updateUser(User user);
-    boolean isUserExists(String login);
 }

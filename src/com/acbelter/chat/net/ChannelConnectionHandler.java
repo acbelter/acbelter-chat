@@ -39,6 +39,8 @@ public class ChannelConnectionHandler implements ConnectionHandler {
             msg.setSender(session.getSessionUser().getId());
         }
 
+        log.info("Send: {}", msg);
+
         channel.write(msg);
     }
 
@@ -62,8 +64,7 @@ public class ChannelConnectionHandler implements ConnectionHandler {
             try {
                 Message msg = inQueue.take();
                 //Message msg = protocol.decode(Arrays.copyOf(buf, read));
-                msg.setSender(session.getId());
-                log.info("message received: {}", msg);
+                log.info("Received: {}", msg);
                 notifyListeners(session, msg);
             } catch (Exception e) {
                 log.error("Failed to handle connection: {}", e);

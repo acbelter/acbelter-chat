@@ -5,9 +5,9 @@ import com.acbelter.chat.HashUtil;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public class UserStoreStub implements UserStore {
     private static Map<Long, User> users = new HashMap<>();
-
 
     static {
         User u0 = new User("user0", HashUtil.generateHash("0"));
@@ -55,16 +55,6 @@ public class UserStoreStub implements UserStore {
 
     @Override
     public boolean updateUser(User user) {
-        return false;
-    }
-
-    @Override
-    public boolean isUserExists(String login) {
-        for (User user : users.values()) {
-            if (user.getLogin().equals(login)) {
-                return true;
-            }
-        }
         return false;
     }
 }

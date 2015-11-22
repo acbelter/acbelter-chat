@@ -85,12 +85,14 @@ public class MessageBuilder {
                 return new HelpMessage();
             }
             case "login": {
-                if (args.length != 2) {
+                if (args.length == 2) {
+                    return new LoginMessage(args[0], args[1]);
+                } else if (args.length == 3) {
+                    return new LoginMessage(args[0], args[1], args[2]);
+                } else {
                     System.out.println("Invalid number of arguments.");
                     return null;
                 }
-
-                return new LoginMessage(args[0], args[1]);
             }
             case "user": {
                 if (args.length != 1) {

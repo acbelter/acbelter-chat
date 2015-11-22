@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+@Deprecated
 public class ThreadedClient implements MessageListener {
     public static final int PORT = 19000;
     public static final String HOST = "localhost";

@@ -5,6 +5,7 @@ import com.acbelter.chat.message.ChatSendMessage;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
+@Deprecated
 public class MessageStoreStub implements MessageStore {
     public static final AtomicLong messagesCounter = new AtomicLong(0);
     public static final AtomicLong chatsCounter = new AtomicLong(0);

@@ -29,18 +29,18 @@
             <artifactId>netty</artifactId>
             <version>3.10.5.Final</version>
         </dependency>
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc</artifactId>
-            <version>14</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/ojdbc6.jar</systemPath>
-            <!-- must match file name -->
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.oracle</groupId>-->
+            <!--<artifactId>ojdbc</artifactId>-->
+            <!--<version>14</version>-->
+            <!--<scope>system</scope>-->
+            <!--<systemPath>${basedir}/lib/ojdbc6.jar</systemPath>-->
+            <!--&lt;!&ndash; must match file name &ndash;&gt;-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.4-1204-jdbc42</version>
+            <version>9.4-1205-jdbc42</version>
         </dependency>
     </dependencies>
 </project>

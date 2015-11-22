@@ -1,41 +1,74 @@
 package com.acbelter.chat.jdbc;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-/**
- * Обертка для запроса в базу
- * Также можно инкапсулировать Connection внутрь
- */
 public class QueryExecutor {
+    private Connection connection;
+
+    public QueryExecutor(Connection connection) {
+        this.connection = connection;
+    }
+
     // Простой запрос
-    public <T> T execQuery(Connection connection, String query, ResultHandler<T> handler) throws SQLException {
+    public <T> T execQuery(String query, ResultHandler<T> handler) throws SQLException {
         Statement stmt = connection.createStatement();
         stmt.execute(query);
         ResultSet result = stmt.getResultSet();
-        T value = handler.handle(result);
+        T data = handler.handle(result);
         result.close();
         stmt.close();
 
-        return value;
+        return data;
     }
 
     // Подготовленный запрос
-    public <T> T execQuery(Connection connection, String query, Map<Integer, Object> args, ResultHandler<T> handler) throws SQLException {
+    public <T> T execQuery(String query, Map<Integer, Object> preparedArgs, ResultHandler<T> handler) throws SQLException {
         PreparedStatement stmt = connection.prepareStatement(query);
-        for (Map.Entry<Integer, Object> entry : args.entrySet()) {
+        for (Map.Entry<Integer, Object> entry : preparedArgs.entrySet()) {
             stmt.setObject(entry.getKey(), entry.getValue());
         }
         ResultSet rs = stmt.executeQuery();
-        T value = handler.handle(rs);
+        T data = handler.handle(rs);
         rs.close();
         stmt.close();
-        return value;
+        return data;
     }
 
-    // TODO Также нужно реализовать Update запросы
+    // Простой update-запрос
+    public List<Integer> execUpdate(String query) throws SQLException {
+        Statement stmt = connection.createStatement();
+        stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+
+        ResultSet rs = stmt.getGeneratedKeys();
+        List<Integer> data = new ArrayList<>();
+        while (rs.next()) {
+            data.add(rs.getInt(1));
+        }
+
+        rs.close();
+        stmt.close();
+        return data;
+    }
+
+    // Подготовленный update-запрос
+    public List<Integer> execUpdate(String query, Map<Integer, Object> preparedArgs) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement(query);
+        for (Map.Entry<Integer, Object> entry : preparedArgs.entrySet()) {
+            stmt.setObject(entry.getKey(), entry.getValue());
+        }
+        stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+
+        ResultSet rs = stmt.getGeneratedKeys();
+        List<Integer> data = new ArrayList<>();
+        while (rs.next()) {
+            data.add(rs.getInt(1));
+        }
+
+        rs.close();
+        stmt.close();
+        return data;
+    }
 }
