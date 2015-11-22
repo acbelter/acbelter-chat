@@ -45,6 +45,10 @@ public class ChatSendMessage extends Message {
         this.senderNick = senderNick;
     }
 
+    public String getFormatted() {
+        return "[" + senderNick + "] says: " + message;
+    }
+
     @Override
     public String toString() {
         return "ChatSendMessage{" +

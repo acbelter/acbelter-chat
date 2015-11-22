@@ -52,7 +52,7 @@ public class ChatFindCommand extends Command {
             List<String> messages = new ArrayList<>();
             for (Long messageId : chat.getMessageIds()) {
                 ChatSendMessage chatMessage = messageStore.getMessageById(messageId);
-                messages.add(chatMessage.getMessage());
+                messages.add(chatMessage.getFormatted());
             }
             try {
                 messages = findMessagesByRegex(messages, chatFindMessage.getRegex());

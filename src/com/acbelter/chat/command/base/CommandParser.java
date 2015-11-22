@@ -17,7 +17,7 @@ public class CommandParser {
 
     public static String[] parseArgs(String line) {
         if (!isCommand(line)) {
-            return null;
+            return new String[0];
         }
 
         String[] parts = line.split(" ");

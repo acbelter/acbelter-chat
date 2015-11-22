@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.*;
 
 public class MessageDatabaseStore implements MessageStore {
@@ -28,7 +29,7 @@ public class MessageDatabaseStore implements MessageStore {
         }
 
         try {
-            List<Long> chatIds = queryExecutor.execUpdate("INSERT INTO chat_table () values ();");
+            List<Long> chatIds = queryExecutor.execUpdate("INSERT INTO chat_table DEFAULT VALUES");
             Chat newChat = new Chat();
             if (chatIds.size() == 1) {
                 newChat.setId(chatIds.get(0));
@@ -36,7 +37,7 @@ public class MessageDatabaseStore implements MessageStore {
             }
 
             StringBuilder sb = new StringBuilder();
-            sb.append("INSERT INTO chat_user_table (chat_id, user_id) values ");
+            sb.append("INSERT INTO chat_user_table (chat_id, user_id) VALUES ");
 
             for (Long id : userIdList) {
                 sb.append("(").append(newChat.getId()).append(",").append(id).append("),");
@@ -190,7 +191,7 @@ public class MessageDatabaseStore implements MessageStore {
 
         try {
             StringBuilder sb = new StringBuilder();
-            sb.append("INSERT INTO user_table (sender_id, chat_id, message, sender_nick) values ('")
+            sb.append("INSERT INTO message_table (sender_id, chat_id, message, sender_nick, timestamp) VALUES ('")
                     .append(message.getSender())
                     .append("', '")
                     .append(message.getChatId())
@@ -198,6 +199,8 @@ public class MessageDatabaseStore implements MessageStore {
                     .append(StringEscapeUtils.escapeSql(message.getMessage()))
                     .append("', '")
                     .append(StringEscapeUtils.escapeSql(message.getSenderNick()))
+                    .append("', '")
+                    .append(new Timestamp(System.currentTimeMillis()))
                     .append("');");
             List<Long> ids = queryExecutor.execUpdate(sb.toString());
             if (ids.size() == 1) {
@@ -223,7 +226,7 @@ public class MessageDatabaseStore implements MessageStore {
         prepared.put(2, userId);
 
         try {
-            List<Long> ids = queryExecutor.execUpdate("INSERT INTO chat_user_table (chat_id, user_id) values (?, ?);", prepared);
+            List<Long> ids = queryExecutor.execUpdate("INSERT INTO chat_user_table (chat_id, user_id) VALUES (?, ?);", prepared);
             if (!ids.isEmpty()) {
                 log.info("Add user id={} to chat id={}", userId, chatId);
                 return true;

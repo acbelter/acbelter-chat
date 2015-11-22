@@ -48,6 +48,7 @@ public class ChatSendCommand extends Command {
             return new CommandResultMessage(CommandResultState.FAILED, "You can't send message to this chat.");
         }
         try {
+            messageStore.addMessage(chatSendMessage.getChatId(), chatSendMessage);
             for (Long partId : participants) {
                 Session userSession = sessionManager.getSessionByUser(partId);
                 if (userSession != null) {

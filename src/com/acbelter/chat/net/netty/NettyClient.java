@@ -66,10 +66,7 @@ public class NettyClient implements MessageListener {
 
     private void processInput(String line) throws IOException {
         if (CommandParser.isCommand(line)) {
-            String name = CommandParser.parseName(line);
-            String[] args = CommandParser.parseArgs(line);
-
-            Message commandMessage = MessageBuilder.buildMessage(name, args);
+            Message commandMessage = MessageBuilder.buildMessage(line);
             if (commandMessage != null) {
                 handler.send(commandMessage);
             } else {

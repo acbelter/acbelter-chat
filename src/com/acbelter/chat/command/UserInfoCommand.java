@@ -36,7 +36,7 @@ public class UserInfoCommand extends Command {
         if (userInfoMessage.getUserId() != null) {
             user = userStore.getUserById(userInfoMessage.getUserId());
         } else {
-            user = userStore.getUserById(userInfoMessage.getSender());
+            user = session.getSessionUser();
         }
         return new UserInfoResultMessage(user);
     }

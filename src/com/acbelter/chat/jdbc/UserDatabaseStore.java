@@ -34,7 +34,7 @@ public class UserDatabaseStore implements UserStore {
 
         try {
             StringBuilder sb = new StringBuilder();
-            sb.append("INSERT INTO user_table (login, password_hash) values ('")
+            sb.append("INSERT INTO user_table (login, password_hash) VALUES ('")
                     .append(StringEscapeUtils.escapeSql(user.getLogin()))
                     .append("', '")
                     .append(StringEscapeUtils.escapeSql(user.getPasswordHash()))

@@ -48,7 +48,7 @@ public class ChatHistoryCommand extends Command {
             List<String> messages = new ArrayList<>();
             for (Long messageId : chat.getMessageIds()) {
                 ChatSendMessage chatMessage = messageStore.getMessageById(messageId);
-                messages.add(chatMessage.getMessage());
+                messages.add(chatMessage.getFormatted());
             }
             messages = getRecentMessages(messages, 50);
             return new ChatHistoryResultMessage(messages);
