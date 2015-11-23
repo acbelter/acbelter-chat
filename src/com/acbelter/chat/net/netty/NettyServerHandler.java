@@ -4,7 +4,6 @@ import com.acbelter.chat.command.base.CommandHandler;
 import com.acbelter.chat.message.base.Message;
 import com.acbelter.chat.net.ChannelConnectionHandler;
 import com.acbelter.chat.net.ConnectionHandler;
-import com.acbelter.chat.net.Protocol;
 import com.acbelter.chat.net.SessionManager;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
@@ -17,12 +16,10 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler {
     static Logger log = LoggerFactory.getLogger(NettyServerHandler.class);
 
     private Map<Integer, ConnectionHandler> handlers = new HashMap<>();
-    private Protocol protocol;
     private SessionManager sessionManager;
     private CommandHandler commandHandler;
 
-    public NettyServerHandler(Protocol protocol, SessionManager sessionManager, CommandHandler commandHandler) {
-        this.protocol = protocol;
+    public NettyServerHandler(SessionManager sessionManager, CommandHandler commandHandler) {
         this.sessionManager = sessionManager;
         this.commandHandler = commandHandler;
     }
@@ -40,13 +37,13 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler {
         log.info("Server open channel " + e.getChannel().getId());
 
         Channel channel = e.getChannel();
-        ConnectionHandler handler = new ChannelConnectionHandler(protocol, sessionManager.createSession(), channel);
+        ConnectionHandler handler = new ChannelConnectionHandler(sessionManager.createSession(), channel);
         handler.addListener(commandHandler);
 
         handlers.put(channel.getId(), handler);
 
-        Thread thread = new Thread(handler);
-        thread.start();
+//        Thread thread = new Thread(handler);
+//        thread.start();
 
         super.channelOpen(ctx, e);
     }
@@ -54,7 +51,8 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler {
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
         log.info("Server receive message: " + e.getMessage().getClass());
-        handlers.get(e.getChannel().getId()).receive((Message) e.getMessage());
+        ConnectionHandler handler = handlers.get(e.getChannel().getId());
+        handler.receive((Message) e.getMessage());
     }
 
     @Override

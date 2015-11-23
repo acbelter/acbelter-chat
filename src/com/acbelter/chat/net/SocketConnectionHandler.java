@@ -17,6 +17,7 @@ import java.util.List;
  * Класс работающий с сокетом, умеет отправлять данные в сокет
  * Также слушает сокет и рассылает событие о сообщении всем подписчикам (асинхронность)
  */
+@Deprecated
 public class SocketConnectionHandler implements ConnectionHandler {
     static Logger log = LoggerFactory.getLogger(SocketConnectionHandler.class);
 

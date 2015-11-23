@@ -3,7 +3,6 @@ package com.acbelter.chat.message;
 import com.acbelter.chat.command.base.CommandType;
 import com.acbelter.chat.message.base.Message;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,8 +27,8 @@ public class ChatCreateMessage extends Message {
         userIdSet.add(userId);
     }
 
-    public List<Long> getUserIds() {
-        return new ArrayList<>(userIdSet);
+    public Set<Long> getUserIds() {
+        return userIdSet;
     }
 
     public void addUserId(Long id) {

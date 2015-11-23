@@ -35,21 +35,20 @@ public class NettyClient implements MessageListener {
                 Executors.newCachedThreadPool(),
                 Executors.newCachedThreadPool()));
 
-        bootstrap.setPipelineFactory(new MessagePipelineFactory(new NettyClientHandler()));
+        bootstrap.setPipelineFactory(new MessagePipelineFactory(new NettyClientHandler(), protocol));
 
         ChannelFuture channelFuture = bootstrap.connect(new InetSocketAddress(HOST, PORT));
         channel = channelFuture.awaitUninterruptibly().getChannel();
 
         Session session = new Session();
-        handler = new ChannelConnectionHandler(protocol, session, channel);
+        handler = new ChannelConnectionHandler(session, channel);
         handler.addListener(this);
 
         NettyClientHandler clientHandler = channel.getPipeline().get(NettyClientHandler.class);
         clientHandler.setConnectionHandler(handler);
 
-        Thread thread = new Thread(handler);
-        thread.start();
-
+//        Thread thread = new Thread(handler);
+//        thread.start();
     }
 
     public void stop() {

@@ -32,8 +32,8 @@ public class NettyServer {
                         Executors.newCachedThreadPool(),
                         Executors.newCachedThreadPool()));
 
-        SimpleChannelUpstreamHandler serverHandler = new NettyServerHandler(protocol, sessionManager, commandHandler);
-        bootstrap.setPipelineFactory(new MessagePipelineFactory(serverHandler));
+        SimpleChannelUpstreamHandler serverHandler = new NettyServerHandler(sessionManager, commandHandler);
+        bootstrap.setPipelineFactory(new MessagePipelineFactory(serverHandler, protocol));
         bootstrap.bind(new InetSocketAddress(PORT));
 
         log.info("Server started on port " + PORT);

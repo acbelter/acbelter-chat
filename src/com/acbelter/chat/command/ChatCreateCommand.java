@@ -10,7 +10,6 @@ import com.acbelter.chat.message.result.ChatCreateResultMessage;
 import com.acbelter.chat.message.result.CommandResultMessage;
 import com.acbelter.chat.session.Session;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class ChatCreateCommand extends Command {
@@ -35,7 +34,7 @@ public class ChatCreateCommand extends Command {
         }
 
         ChatCreateMessage chatCreateMessage = (ChatCreateMessage) message;
-        Set<Long> userIds = new HashSet<>(chatCreateMessage.getUserIds());
+        Set<Long> userIds = chatCreateMessage.getUserIds();
         if (!userIds.contains(session.getSessionUser().getId())) {
             userIds.add(session.getSessionUser().getId());
         }
