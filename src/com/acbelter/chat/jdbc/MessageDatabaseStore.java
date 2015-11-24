@@ -3,6 +3,7 @@ package com.acbelter.chat.jdbc;
 import com.acbelter.chat.message.ChatSendMessage;
 import com.acbelter.chat.message.base.Chat;
 import com.acbelter.chat.message.base.MessageStore;
+import com.acbelter.chat.message.base.UserStore;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +17,12 @@ public class MessageDatabaseStore implements MessageStore {
     static Logger log = LoggerFactory.getLogger(MessageDatabaseStore.class);
     private Connection connection;
     private QueryExecutor queryExecutor;
+    private UserStore userStore;
 
-    public MessageDatabaseStore() {
+    public MessageDatabaseStore(UserStore userStore) {
         connection = DatabaseConnector.getInstance().getConnection();
         queryExecutor = new QueryExecutor(connection);
+        this.userStore = userStore;
     }
 
     @Override
@@ -40,7 +43,9 @@ public class MessageDatabaseStore implements MessageStore {
             sb.append("INSERT INTO chat_user_table (chat_id, user_id) VALUES ");
 
             for (Long id : userIdList) {
-                sb.append("(").append(newChat.getId()).append(",").append(id).append("),");
+                if (userStore.getUserById(id) != null) {
+                    sb.append("(").append(newChat.getId()).append(",").append(id).append("),");
+                }
             }
 
             sb.deleteCharAt(sb.length() - 1);

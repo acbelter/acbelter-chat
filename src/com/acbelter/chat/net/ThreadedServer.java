@@ -72,7 +72,7 @@ public class ThreadedServer {
         SessionManager sessionManager = new SessionManager();
 
         UserStore userStore = new UserDatabaseStore();
-        MessageStore messageStore = new MessageDatabaseStore();
+        MessageStore messageStore = new MessageDatabaseStore(userStore);
 
         Map<CommandType, Command> commands = new HashMap<>();
         commands.put(CommandType.CHAT_CREATE, new ChatCreateCommand(messageStore));
