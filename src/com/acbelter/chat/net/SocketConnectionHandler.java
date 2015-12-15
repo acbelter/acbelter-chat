@@ -82,16 +82,22 @@ public class SocketConnectionHandler implements ConnectionHandler {
                     notifyListeners(session, msg);
                 }
             } catch (Exception e) {
-                log.error("Failed to handle connection: {}", e);
-                e.printStackTrace();
+//                log.error("Failed to handle connection: {}", e);
                 Thread.currentThread().interrupt();
             }
         }
+        log.info("handler stopped");
     }
 
     @Override
     public void stop() {
-        Thread.currentThread().interrupt();
+        try {
+            socket.shutdownInput();
+            socket.shutdownOutput();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
 

@@ -68,7 +68,7 @@ public class NioServerHandler implements ConnectionHandler {
 
     @Override
     public void stop() {
-        Thread.currentThread().interrupt();
+        inQueue.offer(new StopMessage());
     }
 
     @Override
@@ -76,13 +76,30 @@ public class NioServerHandler implements ConnectionHandler {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 Message msg = inQueue.take();
+                if (msg.getClass() == StopMessage.class) {
+                    Thread.currentThread().interrupt();
+                    continue;
+                }
                 log.info("Received: {}", msg);
                 notifyListeners(session, msg);
             } catch (Exception e) {
-                log.error("Failed to handle connection: {}", e);
-                e.printStackTrace();
+//                log.error("Failed to handle connection: {}", e);
+//                e.printStackTrace();
                 Thread.currentThread().interrupt();
             }
         }
+
+        log.info("server handler stopped");
+        server.removeHandler(socketChannel);
+
+        try {
+            socketChannel.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private class StopMessage extends Message {
+
     }
 }

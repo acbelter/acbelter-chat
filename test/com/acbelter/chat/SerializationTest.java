@@ -8,7 +8,7 @@ import com.acbelter.chat.message.base.User;
 import com.acbelter.chat.message.result.*;
 import com.acbelter.chat.net.Protocol;
 import com.acbelter.chat.net.ProtocolException;
-import org.apache.commons.lang.SerializationUtils;
+import com.acbelter.chat.net.SerializationProtocol;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,20 +18,10 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-
+//https://github.com/arhangeldim/tehnotrack-mail/blob/master/messenger/src/test/java/ru/mail/track/integr/IntegrTest.java
 public class SerializationTest {
     private static final Map<CommandType, Message> MESSAGES = new HashMap<>();
-    private Protocol protocol = new Protocol() {
-        @Override
-        public Message decode(byte[] bytes) throws ProtocolException {
-            return (Message) SerializationUtils.deserialize(bytes);
-        }
-
-        @Override
-        public byte[] encode(Message msg) throws ProtocolException {
-            return SerializationUtils.serialize(msg);
-        }
-    };
+    private Protocol protocol = new SerializationProtocol();
 
     private static void setAbstractData(Message msg, Long id, Long sender) {
         msg.setId(id);

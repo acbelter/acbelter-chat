@@ -15,15 +15,13 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class NioServer implements Runnable {
+public class NioServer implements Runnable, Server {
     static Logger log = LoggerFactory.getLogger(NioServer.class);
     private static final int PORT = 9090;
 
@@ -42,7 +40,7 @@ public class NioServer implements Runnable {
     // Отображение клиентского канала на список буферов, готовых к записи,
     // т.е. у каждого клиента есть свой локальный буфер
     private final Map<SocketChannel, List<ByteBuffer>> pendingData = new HashMap<>();
-    private Map<SocketChannel, ConnectionHandler> handlers = new HashMap<>();
+    private Map<SocketChannel, ConnectionHandler> handlers = new ConcurrentHashMap<>();
 
     private ExecutorService executor = Executors.newFixedThreadPool(5);
 
@@ -55,6 +53,20 @@ public class NioServer implements Runnable {
         this.sessionManager = sessionManager;
         this.commandHandler = commandHandler;
         selector = initSelector();
+
+        // Слушаем ввод данных с консоли
+        Thread inputThread = new Thread(() -> {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("$");
+            while (true) {
+                String input = scanner.nextLine();
+                if ("q".equals(input)) {
+                    stopServer();
+                    return;
+                }
+            }
+        });
+        inputThread.start();
     }
 
     private Selector initSelector() throws IOException {
@@ -78,7 +90,7 @@ public class NioServer implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
+        while (!Thread.currentThread().isInterrupted()) {
             try {
                 // Обрабатываем необработанные запросы на изменение состояния каналов
                 synchronized(changeRequests) {
@@ -122,7 +134,9 @@ public class NioServer implements Runnable {
                         write(key);
                     }
                 }
-            } catch (Exception e) {
+            } catch (ClosedSelectorException e) {
+                Thread.currentThread().interrupt();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -236,6 +250,37 @@ public class NioServer implements Runnable {
         }
     }
 
+    @Override
+    public void startServer() throws Exception {
+        new Thread(this).start();
+        log.info("Server started on port {}", PORT);
+    }
+
+    @Override
+    public void stopServer() {
+        for (ConnectionHandler handler: handlers.values()) {
+            handler.stop();
+        }
+    }
+
+    public void removeHandler(SocketChannel channel) {
+        handlers.remove(channel);
+        log.info("remove handler");
+        if (handlers.isEmpty()) {
+            shutdownServer();
+        }
+    }
+
+    public void shutdownServer() {
+        try {
+            selector.close();
+            serverChannel.close();
+            System.exit(0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
         try {
             Protocol protocol = new ApacheSerializationProtocol();
@@ -257,9 +302,9 @@ public class NioServer implements Runnable {
             commands.put(CommandType.USER_PASS, new UserPassCommand(userStore));
 
             CommandHandler handler = new CommandHandler(commands);
-            new Thread(new NioServer(protocol, sessionManager, handler)).start();
-            log.info("Server started on port {}", PORT);
-        } catch (IOException e) {
+            NioServer server = new NioServer(protocol, sessionManager, handler);
+            server.startServer();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

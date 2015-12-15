@@ -14,12 +14,14 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Deprecated
-public class ThreadedServer {
+public class ThreadedServer implements Server {
     public static final int PORT = 19000;
     static Logger log = LoggerFactory.getLogger(ThreadedServer.class);
     private volatile boolean isRunning;
@@ -29,6 +31,8 @@ public class ThreadedServer {
     private Protocol protocol;
     private SessionManager sessionManager;
     private CommandHandler commandHandler;
+
+    private Map<ConnectionHandler, Thread> handlerThreadMap = new HashMap<>();
 
     public ThreadedServer(Protocol protocol, SessionManager sessionManager, CommandHandler commandHandler) {
         try {
@@ -43,27 +47,59 @@ public class ThreadedServer {
         }
     }
 
-    private void startServer() throws Exception {
+    @Override
+    public void startServer() throws Exception {
         log.info("Started, waiting for connection");
+
+        // Слушаем ввод данных с консоли
+        Thread inputThread = new Thread(() -> {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("$");
+            while (true) {
+                String input = scanner.nextLine();
+                if ("q".equals(input)) {
+                    stopServer();
+                    return;
+                }
+            }
+        });
+        inputThread.start();
 
         isRunning = true;
         while (isRunning) {
-            Socket socket = serverSocket.accept();
-            log.info("Accepted. " + socket.getInetAddress());
+            try {
+                Socket socket = serverSocket.accept();
+                log.info("Accepted. " + socket.getInetAddress());
 
-            ConnectionHandler handler = new SocketConnectionHandler(protocol, sessionManager.createSession(), socket);
-            handler.addListener(commandHandler);
+                ConnectionHandler handler = new SocketConnectionHandler(protocol, sessionManager.createSession(), socket);
+                handler.addListener(commandHandler);
 
-            handlers.put(internalCounter.incrementAndGet(), handler);
-            Thread thread = new Thread(handler);
-            thread.start();
+                handlers.put(internalCounter.incrementAndGet(), handler);
+                Thread thread = new Thread(handler);
+                handlerThreadMap.put(handler, thread);
+                thread.start();
+            } catch (SocketException e) {
+                break;
+            }
         }
     }
 
+    @Override
     public void stopServer() {
         isRunning = false;
         for (ConnectionHandler handler : handlers.values()) {
             handler.stop();
+            try {
+                handlerThreadMap.get(handler).join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

@@ -223,7 +223,6 @@ public class NioClient implements Runnable {
      * @param data Данные для записи.
      */
     public void send(byte[] data) {
-        log.info("send");
         synchronized (changeRequests) {
             // Добавляем запрос на изменение состояния канала
             changeRequests.add(new ChangeRequest(socketChannel, ChangeRequest.CHANGE_OPS, SelectionKey.OP_WRITE));
