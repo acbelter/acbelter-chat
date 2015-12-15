@@ -39,16 +39,16 @@ public class NioClient implements Runnable {
     // т.е. у каждого клиента есть свой локальный буфер
     private final Map<SocketChannel, List<ByteBuffer>> pendingData = new HashMap<>();
 
-    private MessageListener messageListener = new NioClientMessageListener();
+    private Session session;
 
-    public NioClient(InetAddress hostAddress, int port, Protocol protocol) throws IOException {
+    public NioClient(InetAddress hostAddress, int port, Protocol protocol, MessageListener messageListener) throws IOException {
         this.hostAddress = hostAddress;
         this.port = port;
         this.protocol = protocol;
         selector = Selector.open();
         socketChannel = initiateConnection();
 
-        Session session = new Session();
+        session = new Session();
         handler = new NioClientHandler(this, session, protocol);
         handler.addListener(messageListener);
 
@@ -82,6 +82,10 @@ public class NioClient implements Runnable {
 
         });
         inputThread.start();
+    }
+
+    public Session getSession() {
+        return session;
     }
 
     @Override
@@ -274,7 +278,8 @@ public class NioClient implements Runnable {
     public static void main(String[] args) {
         try {
             Protocol protocol = new ApacheSerializationProtocol();
-            new Thread(new NioClient(null, 9090, protocol)).start();
+            MessageListener messageListener = new NioClientMessageListener();
+            new Thread(new NioClient(null, 9090, protocol, messageListener)).start();
         } catch (IOException e) {
             e.printStackTrace();
         }

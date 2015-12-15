@@ -37,17 +37,18 @@ public class NioClientHandler implements ConnectionHandler {
             msg.setSender(session.getSessionUser().getId());
         }
 
-        log.info("Send: {}", msg);
-
         try {
             client.send(protocol.encode(msg));
         } catch (ProtocolException e) {
             e.printStackTrace();
         }
+
+        log.info("Send: {}", msg);
     }
 
     @Override
     public void receive(Message msg) {
+        log.info("Received: {}", msg);
         notifyListeners(session, msg);
     }
 

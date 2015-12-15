@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-//https://github.com/arhangeldim/tehnotrack-mail/blob/master/messenger/src/test/java/ru/mail/track/integr/IntegrTest.java
+
 public class SerializationTest {
     private static final Map<CommandType, Message> MESSAGES = new HashMap<>();
     private Protocol protocol = new SerializationProtocol();

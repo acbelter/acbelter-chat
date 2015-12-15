@@ -49,6 +49,8 @@ public class NioServerHandler implements ConnectionHandler {
         } catch (ProtocolException e) {
             e.printStackTrace();
         }
+
+        log.info("Send: {}", msg);
     }
 
     @Override
